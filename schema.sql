@@ -1,8 +1,53 @@
 -- Tabel USERS
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100),
-  email VARCHAR(100) UNIQUE,
-  password VARCHAR(255)
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'guru') NOT NULL DEFAULT 'guru',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabel SISWA
+CREATE TABLE siswa (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama VARCHAR(100) NOT NULL,
+  nis VARCHAR(20) NOT NULL UNIQUE,
+  kelas VARCHAR(20) NOT NULL,
+  alamat TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel GURU
+CREATE TABLE guru (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama VARCHAR(100) NOT NULL,
+  nip VARCHAR(20) NOT NULL UNIQUE,
+  alamat TEXT,
+  user_id INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY (user_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Tabel KRITERIA
+CREATE TABLE kriteria (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_kriteria VARCHAR(100) NOT NULL,
+  bobot FLOAT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel PENILAIAN (untuk menyimpan nilai siswa)
+CREATE TABLE penilaian (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_siswa INT NOT NULL,
+  id_kriteria INT NOT NULL,
+  id_guru INT NOT NULL,
+  nilai INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_siswa) REFERENCES siswa(id) ON DELETE CASCADE,
+  FOREIGN KEY (id_kriteria) REFERENCES kriteria(id) ON DELETE CASCADE,
+  FOREIGN KEY (id_guru) REFERENCES guru(id) ON DELETE CASCADE,
+  UNIQUE KEY (id_siswa, id_kriteria) -- Siswa hanya punya satu nilai untuk satu kriteria
+);

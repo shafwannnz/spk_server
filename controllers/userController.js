@@ -18,7 +18,8 @@ exports.register = async (req, res) => {
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashed });
+    const user = await User.create({ name, email, password: hashed, role: "admin" });
+    // menambahkan role default 'admin' saat pendaftaran
 
     res.status(201).json({ message: "User registered", user });
   } catch (err) {
@@ -29,7 +30,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password} = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email dan password wajib diisi" });
     }

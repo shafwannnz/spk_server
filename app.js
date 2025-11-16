@@ -4,6 +4,8 @@ const cors = require("cors");
 
 const userRoutes = require("./routes/userRoutes");
 const siswaRoutes = require("./routes/siswaRoutes");
+const guruRoutes = require("./routes/dataguruRoutes");
+const kriteriaRoutes = require("./routes/kriteriaRoutes");
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", userRoutes);
 app.use("/api/siswa", siswaRoutes);
+app.use("/api/guru", guruRoutes);
+app.use("/api/kriteria", kriteriaRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "SPK API is running" });
