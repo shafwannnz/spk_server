@@ -10,19 +10,43 @@ const getById = async (id) => {
   return rows[0] ?? null;
 };
 
-const create = async ({ nama_kriteria, bobot }) => {
-  const [result] = await pool.query(
-    "INSERT INTO kriteria (nama_kriteria, bobot) VALUES (?, ?)",
-    [nama_kriteria, bobot]
-  );
-  return getById(result.insertId);
+const create = async ({ nama_kriteria, bobot, deskripsi }) => {
+  // Try to insert with deskripsi column; fall back if column not present
+  try {
+    const [result] = await pool.query(
+      "INSERT INTO kriteria (nama_kriteria, bobot, deskripsi) VALUES (?, ?, ?)",
+      [nama_kriteria, bobot, deskripsi ?? null]
+    );
+    return getById(result.insertId);
+  } catch (err) {
+    if (err && err.code === "ER_BAD_FIELD_ERROR") {
+      const [result] = await pool.query(
+        "INSERT INTO kriteria (nama_kriteria, bobot) VALUES (?, ?)",
+        [nama_kriteria, bobot]
+      );
+      return getById(result.insertId);
+    }
+    throw err;
+  }
 };
 
-const update = async (id, { nama_kriteria, bobot }) => {
-  await pool.query(
-    "UPDATE kriteria SET nama_kriteria = ?, bobot = ? WHERE id = ?",
-    [nama_kriteria, bobot, id]
-  );
+const update = async (id, { nama_kriteria, bobot, deskripsi }) => {
+  // Try update including deskripsi; fallback if column not present
+  try {
+    await pool.query(
+      "UPDATE kriteria SET nama_kriteria = ?, bobot = ?, deskripsi = ? WHERE id = ?",
+      [nama_kriteria, bobot, deskripsi ?? null, id]
+    );
+  } catch (err) {
+    if (err && err.code === "ER_BAD_FIELD_ERROR") {
+      await pool.query(
+        "UPDATE kriteria SET nama_kriteria = ?, bobot = ? WHERE id = ?",
+        [nama_kriteria, bobot, id]
+      );
+    } else {
+      throw err;
+    }
+  }
   return getById(id);
 };
 

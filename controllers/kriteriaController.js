@@ -10,20 +10,36 @@ exports.getAllKriteria = async (_req, res) => {
   }
 };
 
+// ...existing code...
 exports.createKriteria = async (req, res) => {
   try {
-    const { nama_kriteria, bobot } = req.body;
-    if (!nama_kriteria || bobot === undefined) {
-      return res.status(400).json({ message: "Nama kriteria dan bobot wajib diisi" });
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("Body:", req.body);
+
+    const { nama_kriteria, bobot, deskripsi } = req.body;
+
+    // validasi nama_kriteria (kosong/spasi dianggap invalid)
+    if (nama_kriteria == null || String(nama_kriteria).trim() === "") {
+      return res.status(400).json({ message: "Nama kriteria wajib diisi" });
     }
 
-    const created = await kriteriaModel.create({ nama_kriteria, bobot });
+    // konversi bobot jika dikirim sebagai string
+    const bobotNum = bobot === undefined ? undefined : Number(bobot);
+    if (bobotNum === undefined || Number.isNaN(bobotNum)) {
+      return res.status(400).json({ message: "Bobot wajib diisi dan harus angka" });
+    }
+
+    const payload = { nama_kriteria: String(nama_kriteria).trim(), bobot: bobotNum };
+    if (deskripsi != null) payload.deskripsi = String(deskripsi);
+
+    const created = await kriteriaModel.create(payload);
     res.status(201).json(created);
   } catch (err) {
     console.error("POST /api/kriteria:", err);
     res.status(500).json({ message: "Gagal menyimpan data kriteria" });
   }
 };
+// ...existing code...
 
 exports.updateKriteria = async (req, res) => {
   try {

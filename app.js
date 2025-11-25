@@ -1,18 +1,24 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const app = express();
 
 const userRoutes = require("./routes/userRoutes");
 const siswaRoutes = require("./routes/siswaRoutes");
 const guruRoutes = require("./routes/dataguruRoutes");
 const kriteriaRoutes = require("./routes/kriteriaRoutes");
-
-const app = express();
+const perhitunganRoutes = require("./routes/perhitunganRoutes");
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:5173")
   .split(",")
   .map((origin) => origin.trim().replace(/^['"]|['"]$/g, ""))
   .filter(Boolean);
+
+// fetch('http://localhost:3000/api/kriteria') {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify({ nama_kriteria: 'Kualitas', bobot: 3, deskripsi: 'uji' })
+// }
 
 app.use(
   cors({
@@ -28,6 +34,7 @@ app.use("/api", userRoutes);
 app.use("/api/siswa", siswaRoutes);
 app.use("/api/guru", guruRoutes);
 app.use("/api/kriteria", kriteriaRoutes);
+app.use("/api/perhitungan", perhitunganRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ message: "SPK API is running" });

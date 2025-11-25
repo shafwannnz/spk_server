@@ -4,7 +4,18 @@ const penilaianModel = require("../models/penilaianModel");
 exports.getAllGuru = async (_req, res) => {
   try {
     const guru = await guruModel.getAll();
-    res.json(guru);
+    // Map DB column names to client-friendly names
+    const mapped = guru.map((g) => ({
+      id: g.id,
+      nama: g.nama,
+      nip: g.nip,
+      alamat: g.alamat,
+      user_id: g.user_id,
+      mataPelajaran: g.mata_pelajaran ?? g.mataPelajaran ?? "",
+      status: g.status ?? "",
+      created_at: g.created_at,
+    }));
+    res.json(mapped);
   } catch (err) {
     console.error("GET /api/guru:", err);
     res.status(500).json({ message: "Gagal memuat data guru" });
@@ -13,7 +24,9 @@ exports.getAllGuru = async (_req, res) => {
 
 exports.createGuru = async (req, res) => {
   try {
-    const { nama, nip, alamat, user_id } = req.body;
+    console.log("POST /api/guru - Content-Type:", req.headers["content-type"]);
+    console.log("POST /api/guru - Body:", req.body);
+    const { nama, nip, alamat, user_id, mataPelajaran, status } = req.body;
     if (!nama || !nip) {
       return res.status(400).json({ message: "Nama dan NIP wajib diisi" });
     }
@@ -30,7 +43,14 @@ exports.createGuru = async (req, res) => {
       }
     }
 
-    const created = await guruModel.create({ nama, nip, alamat, user_id });
+    const created = await guruModel.create({
+      nama,
+      nip,
+      alamat,
+      user_id,
+      mata_pelajaran: mataPelajaran ?? null,
+      status: status ?? null,
+    });
     res.status(201).json(created);
   } catch (err) {
     console.error("POST /api/guru:", err);
@@ -40,8 +60,10 @@ exports.createGuru = async (req, res) => {
 
 exports.updateGuru = async (req, res) => {
   try {
+    console.log("PUT /api/guru/:id - Content-Type:", req.headers["content-type"]);
+    console.log("PUT /api/guru/:id - Body:", req.body);
     const { id } = req.params;
-    const { nama, nip, alamat, user_id } = req.body;
+    const { nama, nip, alamat, user_id, mataPelajaran, status } = req.body;
 
     const existing = await guruModel.getById(id);
     if (!existing) {
@@ -67,9 +89,23 @@ exports.updateGuru = async (req, res) => {
       nip: nip ?? existing.nip,
       alamat: alamat ?? existing.alamat,
       user_id: user_id ?? existing.user_id,
+      mata_pelajaran: mataPelajaran ?? existing.mata_pelajaran ?? existing.mataPelajaran ?? null,
+      status: status ?? existing.status ?? null,
     });
 
-    res.json(updated);
+    // Map to client-friendly shape
+    const mapped = {
+      id: updated.id,
+      nama: updated.nama,
+      nip: updated.nip,
+      alamat: updated.alamat,
+      user_id: updated.user_id,
+      mataPelajaran: updated.mata_pelajaran ?? updated.mataPelajaran ?? "",
+      status: updated.status ?? "",
+      created_at: updated.created_at,
+    };
+
+    res.json(mapped);
   } catch (err) {
     console.error("PUT /api/guru/:id:", err);
     res.status(500).json({ message: "Gagal memperbarui data guru" });
