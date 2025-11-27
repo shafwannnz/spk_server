@@ -18,5 +18,13 @@ router.post("/nilai", requireRole("guru", "admin"), guruController.tambahNilaiSi
 router.get("/laporan", requireRole("guru", "admin"), guruController.lihatLaporan);
 router.get("/laporan/cetak", requireRole("guru", "admin"), guruController.cetakLaporan);
 
+// Rute untuk laporan AHP dan keputusan
+router.get("/laporan-ahp", requireRole("guru", "admin"), guruController.getLaporanAhp);
+router.get("/laporan-ahp/export", requireRole("guru", "admin"), guruController.exportLaporanAhpHtml);
+router.get("/keputusan", requireRole("guru", "admin"), guruController.getKeputusan);
+router.get("/keputusan/export", requireRole("guru", "admin"), guruController.exportKeputusanHtml);
+router.get("/laporan-ahp", requireRole("guru", "admin"), guruController.getLaporanAhp);
+router.get("/laporan-ahp/export", requireRole("guru", "admin"), guruController.exportLaporanAhpHtml);
+
 module.exports = router;
 
